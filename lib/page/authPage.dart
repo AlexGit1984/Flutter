@@ -1,4 +1,6 @@
+import 'package:first_flutter_poject/scoped_models/main_model.dart';
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -8,32 +10,39 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
-  String _emailValue;
-  String _passwordValue;
-  bool _acceptTerms = false;
-
+  final Map<String, dynamic> _formDate = {
+    "emailValue" : "",
+    "passwordValue": "",
+    "acceptTerms": false
+  };
+  final GlobalKey<FormState> _valdate = new GlobalKey<FormState>();
 
   Widget _button() {
-    return RaisedButton(
-      color: Theme
-          .of(context)
-          .primaryColor,
-      textColor: Colors.white,
-      child: Text('LOGIN'),
-      onPressed: () {
-        print(_emailValue);
-        print(_passwordValue);
-        Navigator.pushReplacementNamed(context, '/products');
-      },
+    return ScopedModelDescendant<MainModel>(
+      builder : (BuildContext context, Widget widget, MainModel model){
+       return RaisedButton(
+          color: Theme.of(context).primaryColor,
+          textColor: Colors.white,
+          child: Text('LOGIN'),
+          onPressed: () {
+            if(!_valdate.currentState.validate()|| !_formDate["acceptTerms"]){
+              return;
+            }
+            _valdate.currentState.save();
+            model.login(_formDate['email'], _formDate['password']);
+            Navigator.pushReplacementNamed(context, '/products');
+          },
+        );
+      }
     );
   }
 
   Widget _switch() {
     return SwitchListTile(
-      value: _acceptTerms,
+      value: _formDate["acceptTerms"],
       onChanged: (bool value) {
         setState(() {
-          _acceptTerms = value;
+          _formDate["acceptTerms"] = value;
         });
       },
       title: Text('Accept Terms'),
@@ -42,10 +51,7 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final double deviceWidth = MediaQuery.of(context).size.width;
     final double targetWidth = deviceWidth > 550.0 ? 500 : deviceWidth * 0.95;
 
     return Scaffold(
@@ -62,26 +68,33 @@ class _AuthPageState extends State<AuthPage> {
                 image: AssetImage('assets/back.jpg'))),
         padding: EdgeInsets.all(10.0),
         child: Center(
-
           child: Form(
+            key: _valdate,
             child: Column(
               children: <Widget>[
                 TextFormField(
                   decoration: InputDecoration(labelText: 'E-Mail'),
                   keyboardType: TextInputType.emailAddress,
+                  validator: (String value) {
+                    if (value.isEmpty ||
+                        !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+                            .hasMatch(value)) return "Error email";
+                  },
                   onSaved: (String value) {
                     setState(() {
-                      _emailValue = value;
+                      _formDate ["emailValue"]= value;
                     });
                   },
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Password'),
                   obscureText: true,
+                  validator: (String value) {
+                    if (value.isEmpty || value.length > 4)
+                      return "Error password";
+                  },
                   onSaved: (String value) {
-                    setState(() {
-                      _passwordValue = value;
-                    });
+                    _formDate ["passwordValue"]= value;
                   },
                 ),
                 _switch(),

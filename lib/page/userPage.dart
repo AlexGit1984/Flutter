@@ -1,13 +1,10 @@
+import 'package:first_flutter_poject/models/Product.dart';
 import 'package:first_flutter_poject/page/home.dart';
-import 'package:first_flutter_poject/page/product_admin.dart';
-import 'package:first_flutter_poject/page/product_create.dart';
+import 'package:first_flutter_poject/page/product_list.dart';
+import 'package:first_flutter_poject/page/product_edit.dart';
 import 'package:flutter/material.dart';
 
 class UserPage extends StatelessWidget {
-  final Function addProduct;
-  final Function deleteProduct;
-
-  UserPage(this.addProduct, this.deleteProduct);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +19,7 @@ class UserPage extends StatelessWidget {
 
         body: TabBarView(
             children: <Widget>[
-              ProductCreate(addProduct), ProductCreatePage()
+              ProductEditPage(), ProductListPage()
             ],
           ),
         drawer: Drawer(
