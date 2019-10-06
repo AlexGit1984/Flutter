@@ -2,9 +2,31 @@ import 'package:first_flutter_poject/models/Product.dart';
 import 'package:first_flutter_poject/page/home.dart';
 import 'package:first_flutter_poject/page/product_list.dart';
 import 'package:first_flutter_poject/page/product_edit.dart';
+import 'package:first_flutter_poject/scoped_models/main_model.dart';
 import 'package:flutter/material.dart';
 
-class UserPage extends StatelessWidget {
+class ProductAdminPage extends StatefulWidget {
+  final MainModel model;
+
+  ProductAdminPage(this.model);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ProductAdminPage();
+  }
+
+
+}
+
+
+  class _ProductAdminPage extends State<ProductAdminPage>{
+
+
+    @override
+    void initState() {
+      widget.model.fetchProducts();
+      super.initState();
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -43,4 +65,4 @@ class UserPage extends StatelessWidget {
       ),
     );
   }
-}
+  }

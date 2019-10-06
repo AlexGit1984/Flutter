@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class ProductPage extends StatelessWidget {
-  int indexProduct;
+  String indexProduct;
 
   ProductPage(this.indexProduct);
 
@@ -18,7 +18,7 @@ class ProductPage extends StatelessWidget {
       return Future.value(false);
     }, child: ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel product) {
-        final Product prodctModel = product.allProducts[indexProduct];
+        final Product prodctModel = product.selectedProduct;
         return Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: true,
@@ -43,7 +43,12 @@ class ProductPage extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.edit),
                 ),
-                Image.asset(prodctModel.image),
+                FadeInImage(
+                  image: NetworkImage(prodctModel.image),
+                  height: 300.0,
+                  fit: BoxFit.cover,
+                  placeholder: AssetImage('assets/a.jpg'),
+                ),
                 Text(
                   prodctModel.title,
                   style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),

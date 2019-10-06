@@ -22,8 +22,9 @@ class MyApp extends StatefulWidget {
 class _MyApp extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    MainModel mainModel = new MainModel();
     return ScopedModel<MainModel>(
-      model: MainModel(),
+      model: mainModel,
       child: MaterialApp(
         theme: ThemeData(
             brightness: Brightness.light,
@@ -33,8 +34,8 @@ class _MyApp extends State<MyApp> {
 
         routes: {
           '/': (BuildContext context) => AuthPage(),
-          '/products': (BuildContext context) => ProductsPage(),
-          '/admin': (BuildContext context) => UserPage()
+          '/products': (BuildContext context) => ProductsPage(mainModel),
+          '/admin': (BuildContext context) => ProductAdminPage(mainModel)
         },
         onGenerateRoute: (RouteSettings rout) {
           final List<String> pathElements = rout.name.split('/');
@@ -42,17 +43,18 @@ class _MyApp extends State<MyApp> {
             return null;
           }
           if (pathElements[1] == 'products') {
-            final int index = int.parse(pathElements[2]);
+            final String productId = pathElements[2];
+            mainModel.selectProduct(productId);
             return MaterialPageRoute<bool>(
               builder: (BuildContext context) =>
-                  ProductPage(index),
+                  ProductPage(productId),
             );
           }
           return null;
         },
         onUnknownRoute: (RouteSettings settings) {
           return MaterialPageRoute(
-              builder: (BuildContext context) => ProductsPage());
+              builder: (BuildContext context) => ProductsPage(mainModel));
         },
       ),
     );
