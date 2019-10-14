@@ -1,11 +1,7 @@
-import 'dart:convert';
-
+import 'package:first_flutter_poject/models/auth.dart';
 import 'package:first_flutter_poject/scoped_models/main_model.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:scoped_model/scoped_model.dart';
-
-enum AuthMode { SignUp, Login }
 
 class AuthPage extends StatefulWidget {
   @override
@@ -24,55 +20,50 @@ class _AuthPageState extends State<AuthPage> {
   final TextEditingController _passwordController = new TextEditingController();
   AuthMode _authMode = AuthMode.Login;
 
-
   Widget _button() {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget widget, MainModel model) {
-          return model.isLoading ? CircularProgressIndicator() : RaisedButton(
-            color: Theme
-                .of(context)
-                .primaryColor,
-            textColor: Colors.white,
-            child: Text(_authMode== AuthMode.Login ?'LOGIN':"SignUP"),
-            onPressed: () {
-              _submit(model);
-            },
-          );
-        });
+      return model.isLoading
+          ? CircularProgressIndicator()
+          : RaisedButton(
+              color: Theme.of(context).primaryColor,
+              textColor: Colors.white,
+              child: Text(_authMode == AuthMode.Login ? 'LOGIN' : "SignUP"),
+              onPressed: () {
+                _submit(model.authenticate);
+              },
+            );
+    });
   }
 
-  void _submit(MainModel model) async {
+  void _submit(Function autheticate) async {
     if (!_valdate.currentState.validate() || !_formDate["acceptTerms"]) {
       return;
     }
     _valdate.currentState.save();
-     Map<String, dynamic> succesInformation;
-    if (_authMode == AuthMode.Login) {
-      succesInformation = await model.login(_formDate['email'], _formDate['password']);
+    Map<String, dynamic> succesInformation =
+        await autheticate(_formDate['email'], _formDate['password'], _authMode);
+
+    if (succesInformation['success']) {
+      Navigator.pushReplacementNamed(context, '/');
     } else {
-      succesInformation =
-      await model.signUp(_formDate['email'], _formDate['password']);
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('An Error Occured'),
+              content: Text(succesInformation['message']),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          });
     }
-      if (succesInformation['success']) {
-        Navigator.pushReplacementNamed(context, '/products');
-      } else {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('An Error Occured'),
-                content: Text(succesInformation['message']),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text('Ok'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              );
-            });
-      }
   }
 
   Widget _switch() {
@@ -119,8 +110,7 @@ class _AuthPageState extends State<AuthPage> {
       keyboardType: TextInputType.emailAddress,
       validator: (String value) {
         if (value.isEmpty ||
-            !RegExp(
-                r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+            !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
                 .hasMatch(value)) return "Error email";
       },
       onSaved: (String value) {
@@ -133,10 +123,7 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final double deviceWidth = MediaQuery.of(context).size.width;
     final double targetWidth = deviceWidth > 550.0 ? 500 : deviceWidth * 0.95;
 
     return Scaffold(
@@ -172,9 +159,7 @@ class _AuthPageState extends State<AuthPage> {
                 _switch(),
                 FlatButton(
                   child: Text(
-                      'Switch to ${_authMode == AuthMode.Login
-                          ? 'Signup'
-                          : 'Login'}'),
+                      'Switch to ${_authMode == AuthMode.Login ? 'Signup' : 'Login'}'),
                   onPressed: () {
                     setState(() {
                       _authMode = _authMode == AuthMode.Login

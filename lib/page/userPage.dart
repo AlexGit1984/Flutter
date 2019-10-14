@@ -3,6 +3,7 @@ import 'package:first_flutter_poject/page/home.dart';
 import 'package:first_flutter_poject/page/product_list.dart';
 import 'package:first_flutter_poject/page/product_edit.dart';
 import 'package:first_flutter_poject/scoped_models/main_model.dart';
+import 'package:first_flutter_poject/ui_elements/helpers/LogoutListFile.dart';
 import 'package:flutter/material.dart';
 
 class ProductAdminPage extends StatefulWidget {
@@ -58,7 +59,9 @@ class ProductAdminPage extends StatefulWidget {
                   Navigator.pushReplacementNamed(
                       context, '/product');
                 },
-              )
+              ),
+              Divider(),
+              LogoutListTile(),
             ],
           ),
         ),
